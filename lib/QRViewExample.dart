@@ -29,7 +29,7 @@ class _QRViewExampleState extends State<QRViewExample> {
     }
   }
 
-  Future<void> onAchieveComplete()async{
+  Future<void> onAchieveComplete() async {
     String data = result!.code!;
     var dataParts = data.split(':');
     debugPrint("${dataParts[0]}\n${dataParts[1]}");
@@ -38,12 +38,15 @@ class _QRViewExampleState extends State<QRViewExample> {
     var cookies = prefs.getString('cookies');
 
     var headers = {'Content-Type': 'application/json', 'Cookie' : cookies!};
-    var body = jsonEncode({"userId" : dataParts[0],
-      "achievementId" : dataParts[1]});
+    var achievementIds = dataParts.sublist(1); // Создание списка идентификаторов ачивок
+    var body = jsonEncode({
+      "userId": dataParts[0],
+      "AchievementIds": achievementIds,
+    });
     var response = await http.post(url, body: body, headers: headers);
-    debugPrint("${response.statusCode}");
+    debugPrint("${response.statusCode} (${response.body})");
     setState(() {
-      result= null;
+      result = null;
     });
   }
 
