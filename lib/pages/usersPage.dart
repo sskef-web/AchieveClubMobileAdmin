@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class UsersPage extends StatefulWidget {
-  const UsersPage({super.key});
+  final Function() logoutCallback;
+
+  UsersPage({super.key, required this.logoutCallback});
 
   @override
   _UsersPage createState() => _UsersPage();
@@ -31,6 +33,7 @@ class _UsersPage extends State<UsersPage> {
               firstName: firstName,
               lastName: lastName,
               avatarPath: avatarPath,
+              logoutCallback: widget.logoutCallback,
             ),
       ),
     );

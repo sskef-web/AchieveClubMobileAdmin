@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _tabs = [const QRViewExample(), const UsersPage()];
+    _tabs = [const QRViewExample(), UsersPage(logoutCallback: widget.logoutCallback,)];
   }
 
   @override

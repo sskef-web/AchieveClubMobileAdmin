@@ -3,6 +3,8 @@ import 'package:achieve_club_mobile_admin/data/achievement.dart';
 import 'package:achieve_club_mobile_admin/data/completedAchievements.dart';
 import 'package:achieve_club_mobile_admin/items/achievementItem.dart';
 import 'package:achieve_club_mobile_admin/main.dart';
+import 'package:achieve_club_mobile_admin/pages/homePage.dart';
+import 'package:achieve_club_mobile_admin/pages/usersPage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
@@ -15,13 +17,15 @@ class UserPage extends StatefulWidget {
   final String firstName;
   final String lastName;
   final String avatarPath;
+  final Function() logoutCallback;
 
-  const UserPage({
+  UserPage({
     super.key,
     required this.userId,
     required this.firstName,
     required this.lastName,
     required this.avatarPath,
+    required this.logoutCallback,
   });
 
   @override
@@ -127,22 +131,80 @@ class _UserPage extends State<UserPage> {
     return null;
   }
 
-  Future<void> onAchieveCancel(int userId, List<int> completedAchievementsIds) async {
+  Future<void> onAchieveCancel(BuildContext context,int userId, List<int> completedAchievementsIds) async {
     var url = Uri.parse('${baseURL}completedachievements');
     var cookies = await loadCookies();
     debugPrint('${cookies}');
     var headers = {'Content-Type': 'application/json', 'Cookie': cookies!};
     var body = jsonEncode({
       "userId": userId,
-      "AchievementIds": completedAchievementsIds,
+      "achievementIds": completedAchievementsIds,
     });
     var response = await http.delete(url, body: body, headers: headers);
+    if (response.statusCode == 200) {
+      showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text('Успешно отменено'),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      _completedAchievementsFuture = fetchCompletedAchievements();
+                    },
+                    child: const Text('Закрыть'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+    else if (response.statusCode == 401) {
+      await refreshToken();
+      await onAchieveCancel(context, userId, completedAchievementsIds);
+    }
     debugPrint("${response.statusCode} (${response.body})");
+  }
+
+  Future<void> refreshToken() async {
+    var refreshUrl = Uri.parse('${baseURL}auth/refresh');
+    var cookies = await loadCookies();
+
+    var response = await http.get(refreshUrl, headers: {
+      'Cookie': cookies!,
+    });
+
+    if (response.statusCode == 200) {
+      var newCookies = response.headers['set-cookie'];
+      if (newCookies != null) {
+        await saveCookies(newCookies);
+      }
+    } else {
+      throw Exception(
+          'Failed to refresh Token (StatusCode: ${response.statusCode})\n${response.body}');
+    }
   }
 
   Future<String?> loadCookies() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('cookies');
+  }
+
+  Future<void> saveCookies(String cookies) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('cookies', cookies);
   }
 
   void cancelAchievementDialog(
@@ -215,7 +277,8 @@ class _UserPage extends State<UserPage> {
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(onPressed: () {
-                  onAchieveCancel(userId, selectedAchievementIds);
+                  Navigator.of(dialogContext).pop();
+                  onAchieveCancel(context, userId, selectedAchievementIds);
                 }, child: const Text('Отметить невыполненными'))
               ],
             ),
