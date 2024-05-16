@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:achieve_club_mobile_admin/data/user.dart';
 import 'package:achieve_club_mobile_admin/items/userItem.dart';
 import 'package:achieve_club_mobile_admin/main.dart';
+import 'package:achieve_club_mobile_admin/pages/currentUserPage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -14,12 +15,25 @@ class UsersPage extends StatefulWidget {
 }
 
 class _UsersPage extends State<UsersPage> {
-  late Future<List<User>> _usersFuture;
 
   @override
   void initState() {
     super.initState();
-    _usersFuture = fetchUsers();
+  }
+
+  void navigateToUserPage(int userId, String firstName, String lastName, String avatarPath) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            UserPage(
+              userId: userId,
+              firstName: firstName,
+              lastName: lastName,
+              avatarPath: avatarPath,
+            ),
+      ),
+    );
   }
 
   Future<List<User>> fetchUsers() async {
@@ -64,7 +78,9 @@ class _UsersPage extends State<UsersPage> {
                         User user = users[index];
 
                         return UserItem(
-                          onTap: null,
+                          onTap: () {
+                            navigateToUserPage(user.id, user.firstName, user.lastName, user.avatar);
+                          },
                           firstName: user.firstName,
                           lastName: user.lastName,
                           avatarPath: user.avatar,
