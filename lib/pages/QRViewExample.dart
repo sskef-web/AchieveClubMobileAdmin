@@ -39,7 +39,7 @@ class _QRViewExampleState extends State<QRViewExample> {
 
     var headers = {'Content-Type': 'application/json', 'Cookie': cookies!};
     var achievementIds =
-        dataParts.sublist(1); // Создание списка идентификаторов ачивок
+        dataParts.sublist(1);
     var body = jsonEncode({
       "userId": dataParts[0],
       "AchievementIds": achievementIds,

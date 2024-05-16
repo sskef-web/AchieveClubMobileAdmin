@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class UserPage extends StatefulWidget {
   final int userId;
   final String firstName;
@@ -125,6 +127,24 @@ class _UserPage extends State<UserPage> {
     return null;
   }
 
+  Future<void> onAchieveCancel(int userId, List<int> completedAchievementsIds) async {
+    var url = Uri.parse('${baseURL}completedachievements');
+    var cookies = await loadCookies();
+    debugPrint('${cookies}');
+    var headers = {'Content-Type': 'application/json', 'Cookie': cookies!};
+    var body = jsonEncode({
+      "userId": userId,
+      "AchievementIds": completedAchievementsIds,
+    });
+    var response = await http.delete(url, body: body, headers: headers);
+    debugPrint("${response.statusCode} (${response.body})");
+  }
+
+  Future<String?> loadCookies() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('cookies');
+  }
+
   void cancelAchievementDialog(
       BuildContext context,
       int userId,
@@ -160,10 +180,10 @@ class _UserPage extends State<UserPage> {
                                 width: 100.0,
                                 height: 120.0,
                                 decoration: BoxDecoration(
-                                  color: Color.fromRGBO(128, 128, 128, 0.2),
+                                  color: const Color.fromRGBO(128, 128, 128, 0.2),
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
-                                padding: EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.all(8.0),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -175,10 +195,10 @@ class _UserPage extends State<UserPage> {
                                         height: 50.0,
                                       ),
                                     ),
-                                    SizedBox(height: 8.0),
+                                    const SizedBox(height: 8.0),
                                     Text(
                                       achievement.title,
-                                      style: TextStyle(fontSize: 12.0),
+                                      style: const TextStyle(fontSize: 12.0),
                                       textAlign: TextAlign.center,
                                     ),
                                   ],
@@ -195,21 +215,14 @@ class _UserPage extends State<UserPage> {
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(onPressed: () {
-                  cancelAchievement(userId, selectedAchievementIds);
-                }, child: Text('Отметить невыполненными'))
+                  onAchieveCancel(userId, selectedAchievementIds);
+                }, child: const Text('Отметить невыполненными'))
               ],
             ),
           ),
         );
       },
     );
-  }
-
-  void cancelAchievement(
-      int userId,
-      List<int> selectedAchievementIds,
-      ) async {
-
   }
 
   void updateUserPassword(
@@ -361,12 +374,8 @@ class _UserPage extends State<UserPage> {
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: completedAchievements.length,
                                 itemBuilder: (context, index) {
-                                  final completedAchievement =
-                                  completedAchievements[index];
-                                  final achievement = achievements.firstWhere(
-                                          (achieve) =>
-                                      achieve.id ==
-                                          completedAchievement.achievementId);
+                                  final completedAchievement = completedAchievements[index];
+                                  final achievement = achievements.firstWhere((achieve) => achieve.id == completedAchievement.achievementId);
 
                                   return AchievementItem(
                                     onTap: () {
