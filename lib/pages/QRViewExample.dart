@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class QRViewExample extends StatefulWidget {
-  const QRViewExample({ super.key });
+  const QRViewExample({super.key});
 
   @override
   State<QRViewExample> createState() => _QRViewExampleState();
@@ -37,8 +37,9 @@ class _QRViewExampleState extends State<QRViewExample> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var cookies = prefs.getString('cookies');
 
-    var headers = {'Content-Type': 'application/json', 'Cookie' : cookies!};
-    var achievementIds = dataParts.sublist(1); // Создание списка идентификаторов ачивок
+    var headers = {'Content-Type': 'application/json', 'Cookie': cookies!};
+    var achievementIds =
+        dataParts.sublist(1); // Создание списка идентификаторов ачивок
     var body = jsonEncode({
       "userId": dataParts[0],
       "AchievementIds": achievementIds,
@@ -67,7 +68,8 @@ class _QRViewExampleState extends State<QRViewExample> {
             child: Center(
               child: (result == null)
                   ? const Text("Отсканируйте!")
-                  : ElevatedButton(onPressed: onAchieveComplete, child: Text(result!.code!)),
+                  : ElevatedButton(
+                      onPressed: onAchieveComplete, child: Text(result!.code!)),
             ),
           )
         ],
