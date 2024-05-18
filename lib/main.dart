@@ -14,10 +14,21 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: SafeArea(
-        child: AuthPage(),
+    return MaterialApp(
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromRGBO(11, 106, 108, 1.0)),
+        useMaterial3: true,
+        fontFamily: 'Exo2',
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromRGBO(11, 106, 108, 1.0),
+            brightness: Brightness.dark),
+        useMaterial3: true,
+        fontFamily: 'Exo2',
+      ),
+      home: const AuthPage(),
     );
   }
 }

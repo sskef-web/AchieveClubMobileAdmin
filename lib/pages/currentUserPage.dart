@@ -331,7 +331,9 @@ class _UserPage extends State<UserPage> {
                   children: [
                     Container(
                     decoration: BoxDecoration(
-                    color: Colors.grey[200],
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? const Color.fromRGBO(11, 106, 108, 0.15)
+                          : const Color.fromRGBO(11, 106, 108, 0.15),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     padding: const EdgeInsets.all(16.0),
@@ -362,7 +364,9 @@ class _UserPage extends State<UserPage> {
                     const SizedBox(height: 16.0),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey[200],
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color.fromRGBO(11, 106, 108, 0.15)
+                            : const Color.fromRGBO(11, 106, 108, 0.15),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       padding: const EdgeInsets.all(16.0),
@@ -423,7 +427,9 @@ class _UserPage extends State<UserPage> {
                     const SizedBox(height: 16.0),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey[200],
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color.fromRGBO(11, 106, 108, 0.15)
+                            : const Color.fromRGBO(11, 106, 108, 0.15),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       padding: const EdgeInsets.all(16.0),
