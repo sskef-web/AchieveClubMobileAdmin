@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 class UsersPage extends StatefulWidget {
   final Function() logoutCallback;
 
-  UsersPage({super.key, required this.logoutCallback});
+  const UsersPage({super.key, required this.logoutCallback});
 
   @override
   _UsersPage createState() => _UsersPage();
@@ -23,7 +23,7 @@ class _UsersPage extends State<UsersPage> {
     super.initState();
   }
 
-  void navigateToUserPage(int userId, String firstName, String lastName, String avatarPath) {
+  void navigateToUserPage(int userId, String firstName, String lastName, String avatarPath, String clubName, String clubLogo) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -33,6 +33,8 @@ class _UsersPage extends State<UsersPage> {
               firstName: firstName,
               lastName: lastName,
               avatarPath: avatarPath,
+              clubLogo: clubLogo,
+              clubName: clubName,
               logoutCallback: widget.logoutCallback,
             ),
       ),
@@ -82,7 +84,7 @@ class _UsersPage extends State<UsersPage> {
 
                         return UserItem(
                           onTap: () {
-                            navigateToUserPage(user.id, user.firstName, user.lastName, user.avatar);
+                            navigateToUserPage(user.id, user.firstName, user.lastName, user.avatar, user.clubLogo, user.clubName);
                           },
                           firstName: user.firstName,
                           lastName: user.lastName,

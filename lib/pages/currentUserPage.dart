@@ -1,10 +1,7 @@
-
 import 'package:achieve_club_mobile_admin/data/achievement.dart';
 import 'package:achieve_club_mobile_admin/data/completedAchievements.dart';
 import 'package:achieve_club_mobile_admin/items/achievementItem.dart';
 import 'package:achieve_club_mobile_admin/main.dart';
-import 'package:achieve_club_mobile_admin/pages/homePage.dart';
-import 'package:achieve_club_mobile_admin/pages/usersPage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
@@ -17,14 +14,18 @@ class UserPage extends StatefulWidget {
   final String firstName;
   final String lastName;
   final String avatarPath;
+  final String clubLogo;
+  final String clubName;
   final Function() logoutCallback;
 
-  UserPage({
+  const UserPage({
     super.key,
     required this.userId,
     required this.firstName,
     required this.lastName,
     required this.avatarPath,
+    required this.clubLogo,
+    required this.clubName,
     required this.logoutCallback,
   });
 
@@ -134,7 +135,7 @@ class _UserPage extends State<UserPage> {
   Future<void> onAchieveCancel(BuildContext context,int userId, List<int> completedAchievementsIds) async {
     var url = Uri.parse('${baseURL}completedachievements');
     var cookies = await loadCookies();
-    debugPrint('${cookies}');
+    debugPrint('$cookies');
     var headers = {'Content-Type': 'application/json', 'Cookie': cookies!};
     var body = jsonEncode({
       "userId": userId,
@@ -156,7 +157,7 @@ class _UserPage extends State<UserPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('Успешно отменено'),
+                  const Text('Успешно отменено'),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
@@ -337,31 +338,47 @@ class _UserPage extends State<UserPage> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     padding: const EdgeInsets.all(16.0),
-                    child: Row(
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        CircleAvatar(
-                          radius: 50.0,
-                          backgroundImage: NetworkImage('https://sskef.site/${widget.avatarPath}'),
-                        ),
-                        const SizedBox(width: 16.0),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row (
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Container(
-                              constraints: const BoxConstraints(maxWidth: 150),
-                              child: Text(
-                                '${widget.firstName} ${widget.lastName}',
-                                style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                              ),
+                            CircleAvatar(
+                              radius: 50.0,
+                              backgroundImage: NetworkImage('https://sskef.site/${widget.avatarPath}'),
+                            ),
+                            const SizedBox(width: 16.0),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  constraints: const BoxConstraints(maxWidth: 150),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        '${widget.firstName} ${widget.lastName}',
+                                        style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        'Клуб "${widget.clubLogo}"',
+                                        style: const TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ]
                             ),
                           ],
                         ),
                       ],
                     ),
                     ),
-                    const SizedBox(height: 16.0),
+                    /*const SizedBox(height: 16.0),
                     Container(
                       decoration: BoxDecoration(
                         color: Theme.of(context).brightness == Brightness.dark
@@ -421,18 +438,18 @@ class _UserPage extends State<UserPage> {
                           ),
                         ],
                       ),
-                    ),
+                    ),*/
                     const SizedBox(height: 16.0),
                     const Center(child: Text('Список завершенных достижений пользователя', style: TextStyle(fontSize: 18.0),),),
                     const SizedBox(height: 16.0),
                     Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.dark
+                        /*color: Theme.of(context).brightness == Brightness.dark
                             ? const Color.fromRGBO(11, 106, 108, 0.15)
-                            : const Color.fromRGBO(11, 106, 108, 0.15),
+                            : const Color.fromRGBO(11, 106, 108, 0.15),*/
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      padding: const EdgeInsets.all(16.0),
+                      //padding: const EdgeInsets.all(16.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

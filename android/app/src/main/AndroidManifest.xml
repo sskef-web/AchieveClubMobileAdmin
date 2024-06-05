@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="achieve_club_mobile_admin"
+        android:label="AC Mobile Admin"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

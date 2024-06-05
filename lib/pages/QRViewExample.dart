@@ -89,7 +89,7 @@ class _QRViewExampleState extends State<QRViewExample> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('Успешно выполнено'),
+                  const Text('Успешно выполнено'),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(dialogContext).pop();

@@ -67,6 +67,7 @@ class UserItem extends StatelessWidget {
                 width: 60.0,
                 height: 60.0,
                 decoration: BoxDecoration(
+                  color: Colors.grey[300],
                   shape: BoxShape.circle,
                   image: DecorationImage(
                     fit: BoxFit.cover,
