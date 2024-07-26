@@ -17,6 +17,7 @@ class UserPage extends StatefulWidget {
   final String clubLogo;
   final String clubName;
   final Function() logoutCallback;
+  final Function() updateUsers;
 
   const UserPage({
     super.key,
@@ -27,6 +28,7 @@ class UserPage extends StatefulWidget {
     required this.clubLogo,
     required this.clubName,
     required this.logoutCallback,
+    required this.updateUsers
   });
 
   @override
@@ -53,7 +55,6 @@ class _UserPage extends State<UserPage> {
 
   Future<List<CompletedAchievement>> fetchCompletedAchievements() async {
     var url = Uri.parse('${baseURL}completedachievements/${widget.userId}');
-
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -67,7 +68,8 @@ class _UserPage extends State<UserPage> {
   }
 
   Future<List<Achievement>> fetchAchievements() async {
-    final response = await http.get(Uri.parse('${baseURL}achievements'));
+    var headers = {"Accept-Language":"ru"};
+    final response = await http.get(Uri.parse('${baseURL}achievements'), headers: headers);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -264,6 +266,7 @@ class _UserPage extends State<UserPage> {
                                       style: const TextStyle(fontSize: 12.0),
                                       textAlign: TextAlign.center,
                                     ),
+
                                   ],
                                 ),
                               ),
@@ -288,12 +291,76 @@ class _UserPage extends State<UserPage> {
       },
     );
   }
+  void deleteUserDialog(
+      BuildContext context,
+      ) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Center( child: Text('Вы действительно хотите удалить аккаунт пользователя?', textAlign: TextAlign.center,style: TextStyle(fontSize: 18.0),),),
+                const SizedBox(height: 16.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ElevatedButton(onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      deleteUser();
+                    },
+                        child: const Text('Удалить', style: TextStyle(color: Color.fromRGBO(
+                            252, 105, 105, 1.0)),)
+                    ),
+                    const SizedBox(width: 8.0,),
+                    ElevatedButton(onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                    },
+                        child: const Text('Отменить', style: TextStyle(color: Colors.white),)
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   void updateUserPassword(
       int userId,
       String password,
       ) {
 
+  }
+
+  Future<void> deleteUser() async {
+    var url = Uri.parse('${baseURL}users/${widget.userId}');
+    var cookies = await loadCookies();
+
+    var response = await http.delete(url, headers: {
+      'Cookie': cookies!,
+    });
+
+    if (response.statusCode == 200) {
+      await widget.updateUsers();
+
+    }
+    else {
+      await refreshToken();
+      await deleteUser();
+      throw Exception(
+          'Failed to delete user (StatusCode: ${response.statusCode})\n${response.body}');
+    }
   }
 
   @override
@@ -374,6 +441,26 @@ class _UserPage extends State<UserPage> {
                               ]
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 16.0),
+                        Container(
+                          width: 500,
+                          height: 50,
+                          child:OutlinedButton(
+                            onPressed: () {
+                              deleteUserDialog(context);
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('Delete user', style: TextStyle(color: Color.fromRGBO(
+                                      252, 105, 105, 1.0))),
+                                  Icon(Icons.delete_outline, color: Color.fromRGBO(
+                                      252, 105, 105, 1.0)),
+                                ]
+                            ),
+                            ),
                         ),
                       ],
                     ),

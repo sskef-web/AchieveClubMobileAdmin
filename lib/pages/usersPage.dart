@@ -1,8 +1,8 @@
 import 'dart:convert';
-
 import 'package:achieve_club_mobile_admin/data/user.dart';
 import 'package:achieve_club_mobile_admin/items/userItem.dart';
 import 'package:achieve_club_mobile_admin/main.dart';
+import 'package:achieve_club_mobile_admin/pages/authpage.dart';
 import 'package:achieve_club_mobile_admin/pages/currentUserPage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -36,6 +36,7 @@ class _UsersPage extends State<UsersPage> {
               clubLogo: clubLogo,
               clubName: clubName,
               logoutCallback: widget.logoutCallback,
+              updateUsers: updatePage,
             ),
       ),
     );
@@ -56,6 +57,14 @@ class _UsersPage extends State<UsersPage> {
     } else {
       throw Exception('Failed to load user');
     }
+  }
+
+  void updatePage() async {
+    await fetchUsers();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AuthPage()),
+    );
   }
 
   @override
