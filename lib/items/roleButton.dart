@@ -99,10 +99,10 @@ class _RoleButtonState extends State<RoleButton> {
         roleId = 1;
         break;
       case "Тренер":
-        roleId = 2;
+        roleId = 3;
         break;
       case "Админ":
-        roleId = 3;
+        roleId = 2;
         break;
       default:
         return;
