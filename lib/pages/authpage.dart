@@ -47,7 +47,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Future<void> _onLogin() async {
-    var url = Uri.https('sskef.site', 'api/auth/login');
+    var url = Uri.parse('${baseURL}auth/login');
     debugPrint(url.toString());
     var headers = {
       'Content-Type': 'application/json',
@@ -83,6 +83,7 @@ class _AuthPageState extends State<AuthPage> {
     setState(() {
       _isLoggedIn = false;
       appTitle = 'Авторизация';
+      Navigator.of(context).pop();
     });
   }
 

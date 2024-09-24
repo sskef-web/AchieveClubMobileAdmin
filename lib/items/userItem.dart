@@ -38,7 +38,7 @@ class UserItem extends StatelessWidget {
                   shape: BoxShape.circle,
                   image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: NetworkImage('https://sskef.site/$avatarPath'),
+                    image: NetworkImage('http://142.93.231.78:8080/$avatarPath'),
                   ),
                 ),
               ),
@@ -64,14 +64,14 @@ class UserItem extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 60.0,
-                height: 60.0,
+                width: 40.0,
+                height: 40.0,
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
                   shape: BoxShape.circle,
                   image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: NetworkImage('https://sskef.site/$clubLogo'),
+                    image: NetworkImage('http://142.93.231.78:8080/$clubLogo'),
                   ),
                 ),
               ),

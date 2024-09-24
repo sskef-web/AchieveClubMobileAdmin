@@ -2,7 +2,7 @@ import 'package:achieve_club_mobile_admin/pages/authpage.dart';
 import 'package:flutter/material.dart';
 
 var appTitle = 'Авторизация';
-var baseURL = 'https://sskef.site/api/';
+var baseURL = 'http://142.93.231.78:8080/api/';
 
 void main() {
   runApp(const MyApp());
