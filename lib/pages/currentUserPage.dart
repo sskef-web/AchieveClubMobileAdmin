@@ -9,6 +9,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../items/roleButton.dart';
+
 class UserPage extends StatefulWidget {
   final int userId;
   final String firstName;
@@ -19,17 +21,16 @@ class UserPage extends StatefulWidget {
   final Function() logoutCallback;
   final Function() updateUsers;
 
-  const UserPage({
-    super.key,
-    required this.userId,
-    required this.firstName,
-    required this.lastName,
-    required this.avatarPath,
-    required this.clubLogo,
-    required this.clubName,
-    required this.logoutCallback,
-    required this.updateUsers
-  });
+  const UserPage(
+      {super.key,
+      required this.userId,
+      required this.firstName,
+      required this.lastName,
+      required this.avatarPath,
+      required this.clubLogo,
+      required this.clubName,
+      required this.logoutCallback,
+      required this.updateUsers});
 
   @override
   _UserPage createState() => _UserPage();
@@ -68,8 +69,9 @@ class _UserPage extends State<UserPage> {
   }
 
   Future<List<Achievement>> fetchAchievements() async {
-    var headers = {"Accept-Language":"ru"};
-    final response = await http.get(Uri.parse('${baseURL}achievements'), headers: headers);
+    var headers = {"Accept-Language": "ru"};
+    final response =
+        await http.get(Uri.parse('${baseURL}achievements'), headers: headers);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -80,7 +82,8 @@ class _UserPage extends State<UserPage> {
   }
 
   Future<void> fetchData() async {
-    final clubResponse = await http.get(Uri.parse('${baseURL}users/${widget.userId}'));
+    final clubResponse =
+        await http.get(Uri.parse('${baseURL}users/${widget.userId}'));
 
     if (clubResponse.statusCode == 200) {
       final userData = jsonDecode(clubResponse.body);
@@ -89,7 +92,8 @@ class _UserPage extends State<UserPage> {
         this.userData = userData;
       });
     } else {
-      throw Exception('Failed to load data: ${clubResponse.body} [${clubResponse.statusCode}]');
+      throw Exception(
+          'Failed to load data: ${clubResponse.body} [${clubResponse.statusCode}]');
     }
   }
 
@@ -106,6 +110,7 @@ class _UserPage extends State<UserPage> {
       }
     });
   }
+
   bool _isPasswordValid(String password) {
     final RegExp passwordRegex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d).{6,}$');
     return passwordRegex.hasMatch(password);
@@ -134,7 +139,8 @@ class _UserPage extends State<UserPage> {
     return null;
   }
 
-  Future<void> onAchieveCancel(BuildContext context,int userId, List<int> completedAchievementsIds) async {
+  Future<void> onAchieveCancel(BuildContext context, int userId,
+      List<int> completedAchievementsIds) async {
     var url = Uri.parse('${baseURL}completedachievements');
     var cookies = await loadCookies();
     debugPrint('$cookies');
@@ -163,7 +169,8 @@ class _UserPage extends State<UserPage> {
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
-                      _completedAchievementsFuture = fetchCompletedAchievements();
+                      _completedAchievementsFuture =
+                          fetchCompletedAchievements();
                     },
                     child: const Text('Закрыть'),
                   ),
@@ -173,8 +180,7 @@ class _UserPage extends State<UserPage> {
           );
         },
       );
-    }
-    else if (response.statusCode == 401) {
+    } else if (response.statusCode == 401) {
       await refreshToken();
       await onAchieveCancel(context, userId, completedAchievementsIds);
     }
@@ -211,10 +217,10 @@ class _UserPage extends State<UserPage> {
   }
 
   void cancelAchievementDialog(
-      BuildContext context,
-      int userId,
-      List<int> selectedAchievementIds,
-      ) async {
+    BuildContext context,
+    int userId,
+    List<int> selectedAchievementIds,
+  ) async {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -228,7 +234,13 @@ class _UserPage extends State<UserPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Center( child: Text('Вы действительно хотите отменить следующие достижения у пользователя?', textAlign: TextAlign.center,style: TextStyle(fontSize: 18.0),),),
+                const Center(
+                  child: Text(
+                    'Вы действительно хотите отменить следующие достижения у пользователя?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18.0),
+                  ),
+                ),
                 const SizedBox(height: 16.0),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -237,15 +249,19 @@ class _UserPage extends State<UserPage> {
                       return FutureBuilder<Achievement?>(
                         future: getAchievementById(achievementId),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                          if (snapshot.connectionState ==
+                                  ConnectionState.done &&
+                              snapshot.hasData) {
                             final achievement = snapshot.data!;
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
                               child: Container(
                                 width: 100.0,
                                 height: 120.0,
                                 decoration: BoxDecoration(
-                                  color: const Color.fromRGBO(128, 128, 128, 0.2),
+                                  color:
+                                      const Color.fromRGBO(128, 128, 128, 0.2),
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
                                 padding: const EdgeInsets.all(8.0),
@@ -255,7 +271,7 @@ class _UserPage extends State<UserPage> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
                                       child: Image.network(
-                                        'https://sskef.site/${achievement.logoURL}',
+                                        'http://142.93.231.78:8080/${achievement.logoURL}',
                                         width: 50.0,
                                         height: 50.0,
                                       ),
@@ -266,7 +282,6 @@ class _UserPage extends State<UserPage> {
                                       style: const TextStyle(fontSize: 12.0),
                                       textAlign: TextAlign.center,
                                     ),
-
                                   ],
                                 ),
                               ),
@@ -280,10 +295,12 @@ class _UserPage extends State<UserPage> {
                   ),
                 ),
                 const SizedBox(height: 16.0),
-                ElevatedButton(onPressed: () {
-                  Navigator.of(dialogContext).pop();
-                  onAchieveCancel(context, userId, selectedAchievementIds);
-                }, child: const Text('Отметить невыполненными'))
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      onAchieveCancel(context, userId, selectedAchievementIds);
+                    },
+                    child: const Text('Отметить невыполненными'))
               ],
             ),
           ),
@@ -291,9 +308,10 @@ class _UserPage extends State<UserPage> {
       },
     );
   }
+
   void deleteUserDialog(
-      BuildContext context,
-      ) async {
+    BuildContext context,
+  ) async {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -307,25 +325,39 @@ class _UserPage extends State<UserPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Center( child: Text('Вы действительно хотите удалить аккаунт пользователя?', textAlign: TextAlign.center,style: TextStyle(fontSize: 18.0),),),
+                const Center(
+                  child: Text(
+                    'Вы действительно хотите удалить аккаунт пользователя?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18.0),
+                  ),
+                ),
                 const SizedBox(height: 16.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    ElevatedButton(onPressed: () {
-                      Navigator.of(dialogContext).pop();
-                      deleteUser();
-                    },
-                        child: const Text('Удалить', style: TextStyle(color: Color.fromRGBO(
-                            252, 105, 105, 1.0)),)
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                          deleteUser();
+                        },
+                        child: const Text(
+                          'Удалить',
+                          style: TextStyle(
+                              color: Color.fromRGBO(252, 105, 105, 1.0)),
+                        )),
+                    const SizedBox(
+                      width: 8.0,
                     ),
-                    const SizedBox(width: 8.0,),
-                    ElevatedButton(onPressed: () {
-                      Navigator.of(dialogContext).pop();
-                    },
-                        child: const Text('Отменить', style: TextStyle(color: Colors.white),)
-                    )
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                        },
+                        child: const Text(
+                          'Отменить',
+                          style: TextStyle(color: Colors.white),
+                        ))
                   ],
                 )
               ],
@@ -334,13 +366,6 @@ class _UserPage extends State<UserPage> {
         );
       },
     );
-  }
-
-  void updateUserPassword(
-      int userId,
-      String password,
-      ) {
-
   }
 
   Future<void> deleteUser() async {
@@ -353,9 +378,7 @@ class _UserPage extends State<UserPage> {
 
     if (response.statusCode == 200) {
       await widget.updateUsers();
-
-    }
-    else {
+    } else {
       await refreshToken();
       await deleteUser();
       throw Exception(
@@ -377,226 +400,186 @@ class _UserPage extends State<UserPage> {
       ),
       floatingActionButton: _isFloatingActionButtonVisible
           ? FloatingActionButton(
-        onPressed: () {
-          cancelAchievementDialog(context, widget.userId, selectedAchievementIds);
-        },
-        child: const Icon(Icons.cancel),
-      )
+              onPressed: () {
+                cancelAchievementDialog(
+                    context, widget.userId, selectedAchievementIds);
+              },
+              child: const Icon(Icons.cancel),
+            )
           : null,
       body: FutureBuilder(
-        future: Future.wait([_achieveFuture, _completedAchievementsFuture]),
-        builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-          currentSnapshot = snapshot;
-          if (snapshot.hasData) {
-            final achievements = snapshot.data![0] as List<Achievement>;
-            final completedAchievements =
-            snapshot.data![1] as List<CompletedAchievement>;
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? const Color.fromRGBO(11, 106, 108, 0.15)
-                          : const Color.fromRGBO(11, 106, 108, 0.15),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row (
+          future: Future.wait([_achieveFuture, _completedAchievementsFuture]),
+          builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+            currentSnapshot = snapshot;
+            if (snapshot.hasData) {
+              final achievements = snapshot.data![0] as List<Achievement>;
+              final completedAchievements =
+                  snapshot.data![1] as List<CompletedAchievement>;
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color.fromRGBO(11, 106, 108, 0.15)
+                              : const Color.fromRGBO(11, 106, 108, 0.15),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: NetworkImage('https://sskef.site/${widget.avatarPath}'),
-                            ),
-                            const SizedBox(width: 16.0),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Container(
-                                  constraints: const BoxConstraints(maxWidth: 150),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        '${widget.firstName} ${widget.lastName}',
-                                        style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        'Клуб "${widget.clubLogo}"',
-                                        style: const TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
+                                CircleAvatar(
+                                  radius: 50.0,
+                                  backgroundImage: NetworkImage(
+                                      'http://142.93.231.78:8080/${widget.avatarPath}'),
                                 ),
-                              ]
+                                const SizedBox(width: 16.0),
+                                Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        constraints:
+                                            const BoxConstraints(maxWidth: 150),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              '${widget.firstName} ${widget.lastName}',
+                                              style: const TextStyle(
+                                                  fontSize: 18.0,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                              'Клуб "${widget.clubLogo}"',
+                                              style: const TextStyle(
+                                                  fontSize: 14.0,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ]),
+                              ],
+                            ),
+                            const SizedBox(height: 16.0),
+                            Container(
+                              width: 500,
+                              height: 50,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  deleteUserDialog(context);
+                                },
+                                child: const Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.center,
+                                    children: [
+                                      Text('Удалить пользователя',
+                                          style: TextStyle(
+                                              color: Color.fromRGBO(
+                                                  252, 105, 105, 1.0))),
+                                      Icon(Icons.delete_outline,
+                                          color: Color.fromRGBO(
+                                              252, 105, 105, 1.0)),
+                                    ]),
+                              ),
+                            ),
+                            const SizedBox(height: 16.0),
+                            RoleButton(userId: widget.userId),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      const Center(
+                        child: Text(
+                          'Список завершенных достижений пользователя',
+                          style: TextStyle(fontSize: 18.0),
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        //padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Stack(
+                              children: [
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: completedAchievements.length,
+                                  itemBuilder: (context, index) {
+                                    final completedAchievement =
+                                        completedAchievements[index];
+                                    final achievement = achievements.firstWhere(
+                                        (achieve) =>
+                                            achieve.id ==
+                                            completedAchievement.achievementId);
+
+                                    return AchievementItem(
+                                      onTap: () {
+                                        setState(() {
+                                          if (selectedAchievementIds
+                                              .contains(achievement.id)) {
+                                            selectedAchievementIds
+                                                .remove(achievement.id);
+                                            updateFloatingActionButtonVisibility();
+                                          } else {
+                                            selectedAchievementIds
+                                                .add(achievement.id);
+                                            updateFloatingActionButtonVisibility();
+                                          }
+                                        });
+                                      },
+                                      logo:
+                                          'http://142.93.231.78:8080/${achievement.logoURL}',
+                                      title: achievement.title,
+                                      description: achievement.description,
+                                      xp: achievement.xp,
+                                      completionRatio:
+                                          achievement.completionRatio,
+                                      id: achievement.id,
+                                      isSelected: selectedAchievementIds
+                                          .contains(achievement.id),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16.0),
-                        Container(
-                          width: 500,
-                          height: 50,
-                          child:OutlinedButton(
-                            onPressed: () {
-                              deleteUserDialog(context);
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text('Delete user', style: TextStyle(color: Color.fromRGBO(
-                                      252, 105, 105, 1.0))),
-                                  Icon(Icons.delete_outline, color: Color.fromRGBO(
-                                      252, 105, 105, 1.0)),
-                                ]
-                            ),
-                            ),
-                        ),
-                      ],
-                    ),
-                    ),
-                    /*const SizedBox(height: 16.0),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color.fromRGBO(11, 106, 108, 0.15)
-                            : const Color.fromRGBO(11, 106, 108, 0.15),
-                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                      padding: const EdgeInsets.all(16.0),
-                      child:
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          TextFormField(
-                            //controller: _passwordController,
-                            controller: TextEditingController.fromValue(
-                              TextEditingValue(
-                                text: password,
-                                selection: TextSelection.collapsed(
-                                    offset: password.length),
-                              ),
-                            ),
-                            decoration: InputDecoration(
-                              labelText: 'Пароль',
-                              suffixIcon: IconButton(
-                                icon: Icon(passIcon),
-                                onPressed: () {
-                                  updatePasswordVisibility();
-                                },
-                              ),
-                              errorText: password.isNotEmpty && (password.length < 6 || !_isPasswordValid(password))
-                                  ? 'Пароль должен содержать не менее 6 символов и \nкак минимум 1 букву или 1 цифру'
-                                  : null,
-                            ),
-                            obscureText: isPasswordHidden,
-                            keyboardType: TextInputType.text,
-                            textAlign: TextAlign.left,
-                            textDirection: TextDirection.ltr,
-                            onChanged: (value) {
-                              _updatePassword(value);
-                            },
-                            validator: (value) {
-                              if (value?.isEmpty ?? true) {
-                                return 'Пароль обязателен для заполнения';
-                              }
-                              if (value!.length < 6 || !_isPasswordValid(value)) {
-                                return 'Пароль должен содержать не менее 6 символов и \nкак минимум 1 букву или 1 цифру';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 8.0,),
-                          ElevatedButton(
-                            onPressed: () {
-                              updateUserPassword(widget.userId, password);
-                            },
-                            child: const Text('Обновить пароль'),
-                          ),
-                        ],
-                      ),
-                    ),*/
-                    const SizedBox(height: 16.0),
-                    const Center(child: Text('Список завершенных достижений пользователя', style: TextStyle(fontSize: 18.0),),),
-                    const SizedBox(height: 16.0),
-                    Container(
-                      decoration: BoxDecoration(
-                        /*color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color.fromRGBO(11, 106, 108, 0.15)
-                            : const Color.fromRGBO(11, 106, 108, 0.15),*/
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      //padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Stack(
-                            children: [
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: completedAchievements.length,
-                                itemBuilder: (context, index) {
-                                  final completedAchievement = completedAchievements[index];
-                                  final achievement = achievements.firstWhere((achieve) => achieve.id == completedAchievement.achievementId);
-
-                                  return AchievementItem(
-                                    onTap: () {
-                                      setState(() {
-                                        if (selectedAchievementIds
-                                            .contains(achievement.id)) {
-                                          selectedAchievementIds
-                                              .remove(achievement.id);
-                                          updateFloatingActionButtonVisibility();
-                                        } else {
-                                          selectedAchievementIds
-                                              .add(achievement.id);
-                                          updateFloatingActionButtonVisibility();
-                                        }
-                                      });
-                                    },
-                                    logo: 'https://sskef.site/${achievement.logoURL}',
-                                    title: achievement.title,
-                                    description: achievement.description,
-                                    xp: achievement.xp,
-                                    completionRatio: achievement.completionRatio,
-                                    id: achievement.id,
-                                    isSelected: selectedAchievementIds
-                                        .contains(achievement.id),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }
-          else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        }
-        ),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          }),
     );
   }
 }
