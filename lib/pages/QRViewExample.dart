@@ -62,7 +62,7 @@ class _QRViewExampleState extends State<QRViewExample> {
     String data = result!.code!;
     var dataParts = data.split(':');
     debugPrint("${dataParts[0]}\n${dataParts[1]}");
-    var url = Uri.https('sskef.site', 'api/completedachievements');
+    var url = Uri.parse('http://142.93.231.78:8080/api/completedachievements');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var cookies = prefs.getString('cookies');
 

@@ -83,7 +83,6 @@ class _AuthPageState extends State<AuthPage> {
     setState(() {
       _isLoggedIn = false;
       appTitle = 'Авторизация';
-      Navigator.of(context).pop();
     });
   }
 
