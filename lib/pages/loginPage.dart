@@ -1,4 +1,4 @@
-import 'package:achieve_club_mobile_admin/main.dart';
+import '../main.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:achieve_club_mobile_admin/pages/homePage.dart';
-import 'package:achieve_club_mobile_admin/pages/loginPage.dart';
-import 'package:achieve_club_mobile_admin/main.dart';
+import '/pages/homePage.dart';
+import '/pages/loginPage.dart';
+import '../main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,7 +47,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Future<void> _onLogin() async {
-    var url = Uri.parse('${baseURL}auth/login');
+    var url = Uri.parse('${baseURL}api/auth/login');
     debugPrint(url.toString());
     var headers = {
       'Content-Type': 'application/json',
@@ -72,6 +72,7 @@ class _AuthPageState extends State<AuthPage> {
         _isLoggedIn = true;
       });
     } else {
+      debugPrint('Login response - ${response.body}\nLogin StatusCode - ${response.statusCode}');
       throw Exception(response.body);
     }
   }

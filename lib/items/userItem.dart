@@ -1,3 +1,4 @@
+import './../main.dart';
 import 'package:flutter/material.dart';
 
 class UserItem extends StatelessWidget {
@@ -38,7 +39,7 @@ class UserItem extends StatelessWidget {
                   shape: BoxShape.circle,
                   image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: NetworkImage('http://142.93.231.78:8080/$avatarPath'),
+                    image: NetworkImage('${baseURL}$avatarPath'),
                   ),
                 ),
               ),
@@ -60,32 +61,9 @@ class UserItem extends StatelessWidget {
               ),
             ],
           ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40.0,
-                height: 40.0,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage('http://142.93.231.78:8080/$clubLogo'),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4.0),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text('# $topPosition',
-                      textAlign: TextAlign.center,
-                      textScaler: const TextScaler.linear(1.8)),
-                ],
-              ),
-            ],
+          trailing: Text('# $topPosition',
+              textAlign: TextAlign.center,
+              textScaler: const TextScaler.linear(1.8)
           ),
         ),
       ),

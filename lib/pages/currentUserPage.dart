@@ -1,7 +1,7 @@
-import 'package:achieve_club_mobile_admin/data/achievement.dart';
-import 'package:achieve_club_mobile_admin/data/completedAchievements.dart';
-import 'package:achieve_club_mobile_admin/items/achievementItem.dart';
-import 'package:achieve_club_mobile_admin/main.dart';
+import '/data/achievement.dart';
+import '/data/completedAchievements.dart';
+import '/items/achievementItem.dart';
+import '../main.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
@@ -40,22 +40,49 @@ class _UserPage extends State<UserPage> {
   Map<String, dynamic>? userData;
   late String password = '';
   bool isPasswordHidden = true;
+  bool isChangeRoleAccess = true;
   IconData passIcon = Icons.visibility;
   late Future<List<Achievement>> _achieveFuture;
   late Future<List<CompletedAchievement>> _completedAchievementsFuture;
   bool _isFloatingActionButtonVisible = false;
   List<int> selectedAchievementIds = [];
+  List<int> multipleSelectedAchievementIds = [];
+  List<CompletedAchievement> multipleCompletedAchievements = [];
+  List<CompletedAchievement> nonMultipleCompletedAchievements = [];
 
   @override
   void initState() {
     super.initState();
     fetchData();
+    checkUserRole();
     _achieveFuture = fetchAchievements();
     _completedAchievementsFuture = fetchCompletedAchievements();
   }
 
+  Future<bool> checkUserRole() async {
+    var url = Uri.parse('${baseURL}api/ping/admin');
+    var cookies = await loadCookies();
+
+    var response = await http.get(url, headers: {
+      'Cookie': cookies!,
+    });
+
+    debugPrint('Check user role response - ${response.statusCode}');
+    if (response.statusCode == 200) {
+      setState(() {
+        isChangeRoleAccess = true;
+      });
+      return true;
+    }
+    else {
+      isChangeRoleAccess = false;
+      await refreshToken();
+      return false;
+    }
+  }
+
   Future<List<CompletedAchievement>> fetchCompletedAchievements() async {
-    var url = Uri.parse('${baseURL}completedachievements/${widget.userId}');
+    var url = Uri.parse('${baseURL}api/completedachievements/${widget.userId}');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -71,7 +98,7 @@ class _UserPage extends State<UserPage> {
   Future<List<Achievement>> fetchAchievements() async {
     var headers = {"Accept-Language": "ru"};
     final response =
-        await http.get(Uri.parse('${baseURL}achievements'), headers: headers);
+        await http.get(Uri.parse('${baseURL}api/achievements'), headers: headers);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -83,7 +110,7 @@ class _UserPage extends State<UserPage> {
 
   Future<void> fetchData() async {
     final clubResponse =
-        await http.get(Uri.parse('${baseURL}users/${widget.userId}'));
+        await http.get(Uri.parse('${baseURL}api/users/${widget.userId}'));
 
     if (clubResponse.statusCode == 200) {
       final userData = jsonDecode(clubResponse.body);
@@ -141,7 +168,7 @@ class _UserPage extends State<UserPage> {
 
   Future<void> onAchieveCancel(BuildContext context, int userId,
       List<int> completedAchievementsIds) async {
-    var url = Uri.parse('${baseURL}completedachievements');
+    var url = Uri.parse('${baseURL}api/completedachievements');
     var cookies = await loadCookies();
     debugPrint('$cookies');
     var headers = {'Content-Type': 'application/json', 'Cookie': cookies!};
@@ -188,7 +215,7 @@ class _UserPage extends State<UserPage> {
   }
 
   Future<void> refreshToken() async {
-    var refreshUrl = Uri.parse('${baseURL}auth/refresh');
+    var refreshUrl = Uri.parse('${baseURL}api/auth/refresh');
     var cookies = await loadCookies();
 
     var response = await http.get(refreshUrl, headers: {
@@ -271,7 +298,7 @@ class _UserPage extends State<UserPage> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
                                       child: Image.network(
-                                        'http://142.93.231.78:8080/${achievement.logoURL}',
+                                        '${baseURL}${achievement.logoURL}',
                                         width: 50.0,
                                         height: 50.0,
                                       ),
@@ -369,7 +396,7 @@ class _UserPage extends State<UserPage> {
   }
 
   Future<void> deleteUser() async {
-    var url = Uri.parse('${baseURL}users/${widget.userId}');
+    var url = Uri.parse('${baseURL}api/users/${widget.userId}');
     var cookies = await loadCookies();
 
     var response = await http.delete(url, headers: {
@@ -378,9 +405,66 @@ class _UserPage extends State<UserPage> {
 
     if (response.statusCode == 200) {
       await widget.updateUsers();
+      showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text('Пользователь удален.'),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                    },
+                    child: const Text('Закрыть'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
     } else {
       await refreshToken();
-      await deleteUser();
+      showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                      'Пользователь не был удален. \n Код статуса - ${response.statusCode}',
+                      textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8.0,),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                    },
+                    child: const Text('Закрыть'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
       throw Exception(
           'Failed to delete user (StatusCode: ${response.statusCode})\n${response.body}');
     }
@@ -415,6 +499,23 @@ class _UserPage extends State<UserPage> {
               final achievements = snapshot.data![0] as List<Achievement>;
               final completedAchievements =
                   snapshot.data![1] as List<CompletedAchievement>;
+
+              if (!nonMultipleCompletedAchievements.isNotEmpty && !multipleCompletedAchievements.isNotEmpty) {
+                for (final completedAchievement in completedAchievements) {
+                  final achievement = achievements  .isNotEmpty
+                      ? achievements.firstWhere((achieve) => achieve.id == completedAchievement.achievementId)
+                      : null;
+
+                  if (achievement != null) {
+                    if (achievement.isMultiple) {
+                      multipleCompletedAchievements.add(completedAchievement);
+                    } else {
+                      nonMultipleCompletedAchievements.add(completedAchievement);
+                    }
+                  }
+                }
+              }
+
               return SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -440,7 +541,7 @@ class _UserPage extends State<UserPage> {
                                 CircleAvatar(
                                   radius: 50.0,
                                   backgroundImage: NetworkImage(
-                                      'http://142.93.231.78:8080/${widget.avatarPath}'),
+                                      '${baseURL}${widget.avatarPath}'),
                                 ),
                                 const SizedBox(width: 16.0),
                                 Column(
@@ -460,12 +561,6 @@ class _UserPage extends State<UserPage> {
                                               '${widget.firstName} ${widget.lastName}',
                                               style: const TextStyle(
                                                   fontSize: 18.0,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                              'Клуб "${widget.clubLogo}"',
-                                              style: const TextStyle(
-                                                  fontSize: 14.0,
                                                   fontWeight: FontWeight.bold),
                                             ),
                                           ],
@@ -499,7 +594,7 @@ class _UserPage extends State<UserPage> {
                               ),
                             ),
                             const SizedBox(height: 16.0),
-                            RoleButton(userId: widget.userId),
+                            isChangeRoleAccess ? RoleButton(userId: widget.userId) : SizedBox(height: 0, width: 0,),
                           ],
                         ),
                       ),
@@ -519,45 +614,96 @@ class _UserPage extends State<UserPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            if (multipleCompletedAchievements.isNotEmpty)
+                              Text(
+                                'Многоразовые достижения',
+                                style: const TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            const SizedBox(height: 8.0),
                             Stack(
                               children: [
                                 ListView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: completedAchievements.length,
+                                  itemCount: multipleCompletedAchievements.length,
                                   itemBuilder: (context, index) {
-                                    final completedAchievement =
-                                        completedAchievements[index];
-                                    final achievement = achievements.firstWhere(
-                                        (achieve) =>
-                                            achieve.id ==
-                                            completedAchievement.achievementId);
+                                    final completedAchievement = multipleCompletedAchievements[index];
+                                    final achievement = achievements.firstWhere((achieve) => achieve.id == completedAchievement.achievementId);
 
                                     return AchievementItem(
                                       onTap: () {
                                         setState(() {
-                                          if (selectedAchievementIds
-                                              .contains(achievement.id)) {
-                                            selectedAchievementIds
-                                                .remove(achievement.id);
-                                            updateFloatingActionButtonVisibility();
-                                          } else {
-                                            selectedAchievementIds
-                                                .add(achievement.id);
-                                            updateFloatingActionButtonVisibility();
+                                          if (selectedAchievementIds.contains(achievement.id)) {
+                                            selectedAchievementIds.remove(achievement.id);
                                           }
+                                          else {
+                                            selectedAchievementIds.add(achievement.id);
+                                          }
+                                          updateFloatingActionButtonVisibility();
                                         });
                                       },
                                       logo:
-                                          'http://142.93.231.78:8080/${achievement.logoURL}',
+                                      '$baseURL${achievement.logoURL}',
                                       title: achievement.title,
                                       description: achievement.description,
                                       xp: achievement.xp,
-                                      completionRatio:
-                                          achievement.completionRatio,
+                                      completionRatio: achievement.completionRatio,
+                                      id: achievement.id,
+                                      completionCount: '${completedAchievement.completionCount}',
+                                      isMultiple: achievement.isMultiple,
+                                      isSelected: selectedAchievementIds
+                                          .contains(achievement.id),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8.0),
+                            if (nonMultipleCompletedAchievements.isNotEmpty)
+                              Text(
+                                'Обычные достижения',
+                                style: const TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            const SizedBox(height: 8.0),
+                            Stack(
+                              children: [
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: nonMultipleCompletedAchievements.length,
+                                  itemBuilder: (context, index) {
+                                    final completedAchievement = nonMultipleCompletedAchievements[index];
+                                    final achievement = achievements.firstWhere((achieve) => achieve.id == completedAchievement.achievementId);
+
+                                    return AchievementItem(
+                                      onTap: () {
+                                        setState(() {
+                                          if (selectedAchievementIds.contains(achievement.id)) {
+                                            selectedAchievementIds.remove(achievement.id);
+                                          }
+                                          else {
+                                            selectedAchievementIds.add(achievement.id);
+                                          }
+                                          updateFloatingActionButtonVisibility();
+                                        });
+                                      },
+                                      logo: '$baseURL${achievement.logoURL}',
+                                      title: achievement.title,
+                                      description: achievement.description,
+                                      xp: achievement.xp,
+                                      completionRatio: achievement.completionRatio,
                                       id: achievement.id,
                                       isSelected: selectedAchievementIds
                                           .contains(achievement.id),
+                                      completionCount: '${completedAchievement.completionCount}',
+                                      isMultiple: achievement.isMultiple,
                                     );
                                   },
                                 ),

@@ -9,9 +9,10 @@ class AchievementItem extends StatefulWidget {
   final int completionRatio;
   final bool isSelected;
   final VoidCallback? onTap;
+  final String completionCount;
+  final bool isMultiple;
 
-  const AchievementItem({
-    super.key,
+  const AchievementItem({super.key,
     required this.logo,
     required this.id,
     required this.title,
@@ -20,7 +21,8 @@ class AchievementItem extends StatefulWidget {
     required this.completionRatio,
     required this.isSelected,
     required this.onTap,
-  });
+    required this.completionCount,
+    required this.isMultiple});
 
   @override
   _AchievementItemState createState() => _AchievementItemState();
@@ -43,23 +45,82 @@ class _AchievementItemState extends State<AchievementItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: isSelected ? Colors.blue : null,
-      child: ListTile(
-        onTap: widget.onTap,
-        leading: Image.network(widget.logo),
-        title: Text(widget.title),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(widget.description),
-            const SizedBox(height: 4.0),
-            Text('XP: ${widget.xp}'),
-            const SizedBox(height: 4.0),
-            Text('Процент выполнения: ${widget.completionRatio}%'),
-          ],
+    return Stack(
+      children: [
+        Card(
+          color: isSelected ? Colors.blue : Theme
+              .of(context)
+              .brightness == Brightness.dark
+              ? const Color.fromRGBO(11, 106, 108, 0.25)
+              : const Color.fromRGBO(255, 255, 255, 1),
+          child: ListTile(
+            contentPadding: EdgeInsets.only(
+                top: 4.0, bottom: 8.0, right: 10, left: 10),
+            onTap: widget.onTap,
+            leading: Image.network(widget.logo),
+            title: Wrap(
+              alignment: WrapAlignment.start,
+              spacing: 8.0,
+              children: [
+                Text(
+                  widget.title,
+                  style: TextStyle(
+                      fontSize: 15
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.only(
+                      right: 8.0, left: 8.0, top: 2.0, bottom: 2.0),
+                  decoration: BoxDecoration(
+                    color: Theme
+                        .of(context)
+                        .brightness == Brightness.dark
+                        ? const Color.fromRGBO(11, 106, 108, 1)
+                        : const Color.fromRGBO(11, 106, 108, 1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${widget.xp}XP',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                widget.isMultiple ? Container(
+                  padding: EdgeInsets.only(
+                      right: 8.0, left: 8.0, top: 2.0, bottom: 2.0),
+                  decoration: BoxDecoration(
+                    color: Theme
+                        .of(context)
+                        .brightness == Brightness.dark
+                        ? const Color.fromRGBO(11, 106, 108, 1)
+                        : const Color.fromRGBO(11, 106, 108, 1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${widget.completionCount}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                  ),
+                ) : SizedBox(),
+              ],
+            ),
+            subtitle: Padding(
+                padding: EdgeInsets.only(top: 4.0),
+                child: Text(
+                  widget.description,
+                  style: TextStyle(
+                    height: 1,
+                    fontSize: 13,
+                  ),
+                )
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }

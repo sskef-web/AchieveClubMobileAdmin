@@ -31,7 +31,7 @@ class _RoleButtonState extends State<RoleButton> {
   }
 
   Future<void> refreshToken() async {
-    var refreshUrl = Uri.parse('${baseURL}auth/refresh');
+    var refreshUrl = Uri.parse('${baseURL}api/auth/refresh');
     var cookies = await loadCookies();
 
     var response = await http.get(refreshUrl, headers: {
@@ -60,7 +60,7 @@ class _RoleButtonState extends State<RoleButton> {
   }
 
   Future<bool> checkUserRole() async {
-    var url = Uri.parse('${baseURL}ping/admin');
+    var url = Uri.parse('${baseURL}api/ping/admin');
     var cookies = await loadCookies();
 
     var response = await http.get(url, headers: {
@@ -122,13 +122,71 @@ class _RoleButtonState extends State<RoleButton> {
 
 
     var response = await http.patch(
-      Uri.parse('${baseURL}users/change_role'), headers: headers, body: body,
+      Uri.parse('${baseURL}api/users/change_role'), headers: headers, body: body,
     );
 
     if (response.statusCode == 200) {
       debugPrint('Role changed successfully');
+      showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text('Роль успешно изменена.'),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                    },
+                    child: const Text('Закрыть'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
     } else {
       debugPrint('Failed to change role. Status code: ${response.statusCode}, ${response.body}');
+      showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                      'Роль не была изменена. \n Код статуса - ${response.statusCode}',
+                      textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8.0,),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                    },
+                    child: const Text('Закрыть'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
     }
   }
 
@@ -241,7 +299,7 @@ class _RoleButtonState extends State<RoleButton> {
       height: 50,
       child: OutlinedButton(
         onPressed: _showRoleDialog,
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [Text('Изменить роль')],
